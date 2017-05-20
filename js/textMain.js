@@ -73,8 +73,9 @@ function init() {
 	hex = decimalToHex( pointLight.color.getHex() );
 
 	materials = [
-		new THREE.MeshPhongMaterial( { color: 0xffffff, shading: THREE.FlatShading } ), // front
-		new THREE.MeshPhongMaterial( { color: 0xffffff, shading: THREE.SmoothShading } ) // side
+		new THREE.MeshLambertMaterial( { color: Math.random() * 0xffffff } ),
+		// new THREE.MeshPhongMaterial( { color: 0xffffff, shading: THREE.FlatShading } ), // front
+		// new THREE.MeshPhongMaterial( { color: 0xffffff, shading: THREE.SmoothShading } ) // side
 	];
 	group = new THREE.Group();
 	group.position.y = 100;
@@ -82,11 +83,12 @@ function init() {
 	loadFont();
 	var plane = new THREE.Mesh(
 		new THREE.PlaneBufferGeometry( 10000, 10000 ),
-		new THREE.MeshBasicMaterial( { color: 0xffffff, opacity: 0.5, transparent: true } )
+		// new THREE.MeshBasicMaterial( { color: 0xffffff, opacity: 0.5, transparent: true } )
+		new THREE.MeshLambertMaterial( { color:0xffffff, opacity: 0.5, transparent: true} ),
 	);
 	plane.position.y = 100;
 	plane.rotation.x = - Math.PI / 2;
-	scene.add( plane );
+	// scene.add( plane );
 	// RENDERER
 	renderer = new THREE.WebGLRenderer( { antialias: true } );
 	renderer.setClearColor( scene.fog.color );
@@ -101,6 +103,8 @@ function init() {
 	document.addEventListener( 'touchstart', onDocumentTouchStart, false );
 	document.addEventListener( 'touchmove', onDocumentTouchMove, false );	
 	window.addEventListener( 'resize', onWindowResize, false );
+
+	raycaster = new THREE.Raycaster();
 }
 
 function onWindowResize() {
@@ -160,7 +164,9 @@ function createText() {
 		}
 	}
 	var centerOffset = -0.5 * ( textGeo.boundingBox.max.x - textGeo.boundingBox.min.x );
-	textMesh1 = new THREE.Mesh( textGeo, materials );
+	// textMesh1 = new THREE.Mesh( textGeo, materials );
+	textMesh1 = new THREE.Mesh( textGeo, new THREE.MeshLambertMaterial( { color: Math.random() * 0xffffff } ) );
+	
 	textMesh1.position.x = centerOffset;
 	textMesh1.position.y = hover;
 	textMesh1.position.z = 0;
@@ -168,7 +174,9 @@ function createText() {
 	textMesh1.rotation.y = Math.PI * 2;
 	group.add( textMesh1 );
 	if ( mirror ) {
-		textMesh2 = new THREE.Mesh( textGeo, materials );
+		// textMesh2 = new THREE.Mesh( textGeo, materials );
+		textMesh2 = new THREE.Mesh( textGeo, new THREE.MeshLambertMaterial( { color: Math.random() * 0xffffff } ) );
+
 		textMesh2.position.x = centerOffset;
 		textMesh2.position.y = -hover;
 		textMesh2.position.z = height;
@@ -230,6 +238,33 @@ function animate() {
 function render() {
 	group.rotation.y += ( targetRotation - group.rotation.y ) * 0.05;
 	camera.lookAt( cameraTarget );
-	renderer.clear();
+	
+	checkIntersection();
+
+	// renderer.clear();
+
+
 	renderer.render( scene, camera );
+}
+
+var mouse = new THREE.Vector2();
+var INTERSECTED, raycaster;
+function checkIntersection(){
+	raycaster.setFromCamera( mouse, camera );
+	var intersects = raycaster.intersectObjects( scene.children );
+	if ( intersects.length > 0 ) {
+		console.log("a");
+
+		if ( INTERSECTED != intersects[ 0 ].object ) {
+			if ( INTERSECTED ) INTERSECTED.material.emissive.setHex( INTERSECTED.currentHex );
+			INTERSECTED = intersects[ 0 ].object;
+			INTERSECTED.currentHex = INTERSECTED.material.emissive.getHex();
+			INTERSECTED.material.emissive.setHex( 0xff0000 );
+			console.log("b");
+		}
+	} else {
+		if ( INTERSECTED ) INTERSECTED.material.emissive.setHex( INTERSECTED.currentHex );
+		INTERSECTED = null;
+		console.log("c");
+	}
 }
