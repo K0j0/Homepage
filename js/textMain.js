@@ -45,7 +45,6 @@ function onReady(){
 	animate();
 }
 
-
 function decimalToHex( d ) {
 	var hex = Number( d ).toString( 16 );
 	hex = "000000".substr( 0, 6 - hex.length ) + hex;
@@ -69,25 +68,10 @@ function init() {
 	var pointLight = new THREE.PointLight( 0xffffff, 1.5 );
 	pointLight.position.set( 0, 100, 90 );
 	scene.add( pointLight );
-	// Get text from hash
-	var hash = document.location.hash.substr( 1 );
-	if ( hash.length !== 0 ) {
-		var colorhash  = hash.substring( 0, 6 );
-		var fonthash   = hash.substring( 6, 7 );
-		var weighthash = hash.substring( 7, 8 );
-		var bevelhash  = hash.substring( 8, 9 );
-		var texthash   = hash.substring( 10 );
-		hex = colorhash;
-		pointLight.color.setHex( parseInt( colorhash, 16 ) );
-		fontName = reverseFontMap[ parseInt( fonthash ) ];
-		fontWeight = reverseWeightMap[ parseInt( weighthash ) ];
-		bevelEnabled = parseInt( bevelhash );
-		text = decodeURI( texthash );
-		updatePermalink();
-	} else {
-		pointLight.color.setHSL( Math.random(), 1, 0.5 );
-		hex = decimalToHex( pointLight.color.getHex() );
-	}
+
+	pointLight.color.setHSL( Math.random(), 1, 0.5 );
+	hex = decimalToHex( pointLight.color.getHex() );
+
 	materials = [
 		new THREE.MeshPhongMaterial( { color: 0xffffff, shading: THREE.FlatShading } ), // front
 		new THREE.MeshPhongMaterial( { color: 0xffffff, shading: THREE.SmoothShading } ) // side
