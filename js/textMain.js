@@ -113,36 +113,9 @@ function init() {
 	stats = new Stats();
 	//container.appendChild( stats.dom );
 	// EVENTS
-	/*
 	document.addEventListener( 'mousedown', onDocumentMouseDown, false );
 	document.addEventListener( 'touchstart', onDocumentTouchStart, false );
-	document.addEventListener( 'touchmove', onDocumentTouchMove, false );
-	document.addEventListener( 'keypress', onDocumentKeyPress, false );
-	document.addEventListener( 'keydown', onDocumentKeyDown, false );
-
-	document.getElementById( "color" ).addEventListener( 'click', function() {
-		pointLight.color.setHSL( Math.random(), 1, 0.5 );
-		hex = decimalToHex( pointLight.color.getHex() );
-		updatePermalink();
-	}, false );
-	document.getElementById( "font" ).addEventListener( 'click', function() {
-		fontIndex ++;
-		fontName = reverseFontMap[ fontIndex % reverseFontMap.length ];
-		loadFont();
-	}, false );
-	document.getElementById( "weight" ).addEventListener( 'click', function() {
-		if ( fontWeight === "bold" ) {
-			fontWeight = "regular";
-		} else {
-			fontWeight = "bold";
-		}
-		loadFont();
-	}, false );
-	document.getElementById( "bevel" ).addEventListener( 'click', function() {
-		bevelEnabled = !bevelEnabled;
-		refreshText();
-	}, false );
-	*/
+	document.addEventListener( 'touchmove', onDocumentTouchMove, false );	
 	window.addEventListener( 'resize', onWindowResize, false );
 }
 
@@ -157,38 +130,7 @@ function onWindowResize() {
 function boolToNum( b ) {
 	return b ? 1 : 0;
 }
-/*
-function updatePermalink() {
-	var link = hex + fontMap[ fontName ] + weightMap[ fontWeight ] + boolToNum( bevelEnabled ) + "#" + encodeURI( text );
-	permalink.href = "#" + link;
-	window.location.hash = link;
-}
-function onDocumentKeyDown( event ) {
-	if ( firstLetter ) {
-		firstLetter = false;
-		text = "";
-	}
-	var keyCode = event.keyCode;
-	// backspace
-	if ( keyCode == 8 ) {
-		event.preventDefault();
-		text = text.substring( 0, text.length - 1 );
-		refreshText();
-		return false;
-	}
-}
-function onDocumentKeyPress( event ) {
-	var keyCode = event.which;
-	// backspace
-	if ( keyCode == 8 ) {
-		event.preventDefault();
-	} else {
-		var ch = String.fromCharCode( keyCode );
-		text += ch;
-		refreshText();
-	}
-}
-*/
+
 function loadFont() {
 	var loader = new THREE.FontLoader();
 	loader.load( 'fonts/' + fontName + '_' + fontWeight + '.typeface.json', function ( response ) {
@@ -252,13 +194,13 @@ function createText() {
 	}
 }
 function refreshText() {
-	// updatePermalink();
 	group.remove( textMesh1 );
 	if ( mirror ) group.remove( textMesh2 );
 	if ( !text ) return;
 	createText();
 }
 /*
+*/
 function onDocumentMouseDown( event ) {
 	event.preventDefault();
 	document.addEventListener( 'mousemove', onDocumentMouseMove, false );
@@ -295,7 +237,6 @@ function onDocumentTouchMove( event ) {
 		targetRotation = targetRotationOnMouseDown + ( mouseX - mouseXOnMouseDown ) * 0.05;
 	}
 }
-*/
 //
 function animate() {
 	requestAnimationFrame( animate );
