@@ -58,6 +58,7 @@ function init() {
 	camera = new THREE.PerspectiveCamera( 30, window.innerWidth / window.innerHeight, 1, 1500 );
 	camera.position.set( 0, 400, 700 );
 	cameraTarget = new THREE.Vector3( 0, 150, 0 );
+	camera.lookAt( cameraTarget );
 	// SCENE
 	scene = new THREE.Scene();
 	scene.fog = new THREE.Fog( 0x000000, 250, 1400 );
@@ -105,6 +106,8 @@ function init() {
 	window.addEventListener( 'resize', onWindowResize, false );
 
 	raycaster = new THREE.Raycaster();
+
+	makeCubs();
 }
 
 function onWindowResize() {
@@ -113,6 +116,24 @@ function onWindowResize() {
 	camera.aspect = window.innerWidth / window.innerHeight;
 	camera.updateProjectionMatrix();
 	renderer.setSize( window.innerWidth, window.innerHeight );
+}
+
+function makeCubs(){
+	var geometry = new THREE.BoxBufferGeometry( 20, 20, 20 );
+	for ( var i = 0; i < 20; i ++ ) {
+		var object = new THREE.Mesh( geometry, new THREE.MeshLambertMaterial( { color: Math.random() * 0xffffff } ) );
+		object.position.x = Math.random() * 800 - 400;
+		object.position.y = Math.random() * 800 - 400;
+		object.position.z = Math.random() * 800 - 400;
+		object.rotation.x = Math.random() * 2 * Math.PI;
+		object.rotation.y = Math.random() * 2 * Math.PI;
+		object.rotation.z = Math.random() * 2 * Math.PI;
+		object.scale.x = Math.random() + 0.5;
+		object.scale.y = Math.random() + 0.5;
+		object.scale.z = Math.random() + 0.5;
+		object.name = "Mesh_" + i;
+		scene.add( object );
+	}
 }
 			//
 function boolToNum( b ) {
@@ -172,7 +193,9 @@ function createText() {
 	textMesh1.position.z = 0;
 	textMesh1.rotation.x = 0;
 	textMesh1.rotation.y = Math.PI * 2;
+	textMesh1.name = "Text Mesh 1";
 	group.add( textMesh1 );
+	// scene.add(textMesh1);
 	if ( mirror ) {
 		// textMesh2 = new THREE.Mesh( textGeo, materials );
 		textMesh2 = new THREE.Mesh( textGeo, new THREE.MeshLambertMaterial( { color: Math.random() * 0xffffff } ) );
@@ -182,6 +205,7 @@ function createText() {
 		textMesh2.position.z = height;
 		textMesh2.rotation.x = Math.PI;
 		textMesh2.rotation.y = Math.PI * 2;
+		textMesh2.name = "Text Mesh 2";
 		group.add( textMesh2 );
 	}
 }
@@ -202,6 +226,10 @@ function onDocumentMouseDown( event ) {
 	targetRotationOnMouseDown = targetRotation;
 }
 function onDocumentMouseMove( event ) {
+	event.preventDefault();
+	mouse.x = ( event.clientX / window.innerWidth ) * 2 - 1;
+	mouse.y = - ( event.clientY / window.innerHeight ) * 2 + 1;
+
 	mouseX = event.clientX - windowHalfX;
 	targetRotation = targetRotationOnMouseDown + ( mouseX - mouseXOnMouseDown ) * 0.02;
 }
@@ -236,8 +264,12 @@ function animate() {
 	stats.update();
 }
 function render() {
-	group.rotation.y += ( targetRotation - group.rotation.y ) * 0.05;
-	camera.lookAt( cameraTarget );
+	var rotVal = ( targetRotation - group.rotation.y ) * 0.05;
+	// console.log("targetRot: " + targetRotation + " | " + "rotVal: " + rotVal + " | " + (rotVal * 180 / Math.PI));
+	group.rotation.y += rotVal;
+
+	if(Math.abs(rotVal) < .001 && targetRotation != 0) targetRotation = 0;
+	// camera.lookAt( cameraTarget );
 	
 	checkIntersection();
 
@@ -251,20 +283,30 @@ var mouse = new THREE.Vector2();
 var INTERSECTED, raycaster;
 function checkIntersection(){
 	raycaster.setFromCamera( mouse, camera );
+	// var intersects = [];
 	var intersects = raycaster.intersectObjects( scene.children );
+	// intersects = group.raycast(raycaster, intersects);
+	// textMesh1.raycast(raycaster, []);
+	if(raycaster && textMesh1){
+		var res = raycaster.intersectObject(group, true);
+		if(res && res[0] && res[0].object){
+			// console.log("Intersect " + res[0].object.name + ".");
+		}
+	}
+
 	if ( intersects.length > 0 ) {
-		console.log("a");
+		// console.log("Ray Intersects " + intersects.length + " objects");
 
 		if ( INTERSECTED != intersects[ 0 ].object ) {
 			if ( INTERSECTED ) INTERSECTED.material.emissive.setHex( INTERSECTED.currentHex );
 			INTERSECTED = intersects[ 0 ].object;
 			INTERSECTED.currentHex = INTERSECTED.material.emissive.getHex();
 			INTERSECTED.material.emissive.setHex( 0xff0000 );
-			console.log("b");
+			// console.log("Intersect Highlight");
 		}
 	} else {
 		if ( INTERSECTED ) INTERSECTED.material.emissive.setHex( INTERSECTED.currentHex );
 		INTERSECTED = null;
-		console.log("c");
+		// console.log("No Intersects");
 	}
 }
